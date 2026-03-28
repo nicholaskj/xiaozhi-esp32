@@ -317,6 +317,15 @@ private:
     // SPI初始化
     void InitializeSpi() {
         ESP_LOGI(TAG, "Initialize SPI bus");
+        // 调试信息：SPI引脚配置
+        ESP_LOGI(TAG, "SPI引脚配置:");
+        ESP_LOGI(TAG, "SCLK_PIN: %d", DISPLAY_SPI_SCLK_PIN);
+        ESP_LOGI(TAG, "MOSI_PIN: %d", DISPLAY_SPI_MOSI_PIN);
+        ESP_LOGI(TAG, "CS_PIN: %d", DISPLAY_SPI_CS_PIN);
+        ESP_LOGI(TAG, "DC_PIN: %d", DISPLAY_SPI_DC_PIN);
+        ESP_LOGI(TAG, "RST_PIN: %d", DISPLAY_SPI_RESET_PIN);
+        ESP_LOGI(TAG, "BL_PIN: %d", DISPLAY_BACKLIGHT_PIN);
+        
         spi_bus_config_t buscfg = GC9A01_PANEL_BUS_SPI_CONFIG(DISPLAY_SPI_SCLK_PIN, DISPLAY_SPI_MOSI_PIN,
                                     DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(uint16_t));
         ESP_ERROR_CHECK(spi_bus_initialize(SPI3_HOST, &buscfg, SPI_DMA_CH_AUTO));
