@@ -9,6 +9,7 @@
 #include "lamp_controller.h"
 #include "led/single_led.h"
 #include "esp32_camera.h"
+#include "camera_stream_server.h"
 
 #include <esp_log.h>
 #include <driver/i2c_master.h>
@@ -66,6 +67,7 @@ private:
     Button boot_button_;
     LcdDisplay* display_;
     Esp32Camera* camera_;
+    CameraStreamServer* stream_server_;
 
     void InitializeSpi() {
         spi_bus_config_t buscfg = {};
@@ -165,17 +167,31 @@ private:
         });
     }
 
+    void InitializeStreamServer() {
+        stream_server_ = new CameraStreamServer();
+        if (!stream_server_->Start()) {
+            ESP_LOGE(TAG, "Failed to start camera stream server");
+            delete stream_server_;
+            stream_server_ = nullptr;
+        } else {
+            ESP_LOGI(TAG, "Camera stream server started successfully");
+        }
+    }
+
 public:
     CompactWifiBoardS3Cam() :
-        boot_button_(BOOT_BUTTON_GPIO) {
+        boot_button_(BOOT_BUTTON_GPIO),
+        display_(nullptr),
+        camera_(nullptr),
+        stream_server_(nullptr) {
         InitializeSpi();
         InitializeLcdDisplay();
         InitializeButtons();
         InitializeCamera();
+        InitializeStreamServer();
         if (DISPLAY_BACKLIGHT_PIN != GPIO_NUM_NC) {
             GetBacklight()->RestoreBrightness();
         }
-        
     }
 
     virtual Led* GetLed() override {
