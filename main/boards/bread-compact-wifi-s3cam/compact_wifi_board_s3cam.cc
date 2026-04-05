@@ -67,6 +67,8 @@ private:
     LcdDisplay* display_;
     Esp32Camera* camera_;
 
+    void PrintPinDebugInfo();
+
     void InitializeSpi() {
         spi_bus_config_t buscfg = {};
         buscfg.mosi_io_num = DISPLAY_MOSI_PIN;
@@ -167,15 +169,17 @@ private:
 
 public:
     CompactWifiBoardS3Cam() :
-        boot_button_(BOOT_BUTTON_GPIO) {
+        boot_button_(BOOT_BUTTON_GPIO),
+        display_(nullptr),
+        camera_(nullptr) {
         InitializeSpi();
         InitializeLcdDisplay();
         InitializeButtons();
         InitializeCamera();
+        PrintPinDebugInfo();
         if (DISPLAY_BACKLIGHT_PIN != GPIO_NUM_NC) {
             GetBacklight()->RestoreBrightness();
         }
-        
     }
 
     virtual Led* GetLed() override {
@@ -210,5 +214,62 @@ public:
         return camera_;
     }
 };
+
+void CompactWifiBoardS3Cam::PrintPinDebugInfo() {
+    // 强制输出调试信息
+    printf("=== Hardware Pin Configuration Debug ===\n");
+    ESP_LOGI(TAG, "=== Hardware Pin Configuration ===");
+    
+    // Camera pins
+    ESP_LOGI(TAG, "Camera Pins:");
+    ESP_LOGI(TAG, "  D0: GPIO%d", CAMERA_PIN_D0);
+    ESP_LOGI(TAG, "  D1: GPIO%d", CAMERA_PIN_D1);
+    ESP_LOGI(TAG, "  D2: GPIO%d", CAMERA_PIN_D2);
+    ESP_LOGI(TAG, "  D3: GPIO%d", CAMERA_PIN_D3);
+    ESP_LOGI(TAG, "  D4: GPIO%d", CAMERA_PIN_D4);
+    ESP_LOGI(TAG, "  D5: GPIO%d", CAMERA_PIN_D5);
+    ESP_LOGI(TAG, "  D6: GPIO%d", CAMERA_PIN_D6);
+    ESP_LOGI(TAG, "  D7: GPIO%d", CAMERA_PIN_D7);
+    ESP_LOGI(TAG, "  XCLK: GPIO%d", CAMERA_PIN_XCLK);
+    ESP_LOGI(TAG, "  PCLK: GPIO%d", CAMERA_PIN_PCLK);
+    ESP_LOGI(TAG, "  VSYNC: GPIO%d", CAMERA_PIN_VSYNC);
+    ESP_LOGI(TAG, "  HREF: GPIO%d", CAMERA_PIN_HREF);
+    ESP_LOGI(TAG, "  SIOC: GPIO%d", CAMERA_PIN_SIOC);
+    ESP_LOGI(TAG, "  SIOD: GPIO%d", CAMERA_PIN_SIOD);
+    ESP_LOGI(TAG, "  PWDN: GPIO%d", CAMERA_PIN_PWDN);
+    ESP_LOGI(TAG, "  RESET: GPIO%d", CAMERA_PIN_RESET);
+    
+    // Display pins
+    ESP_LOGI(TAG, "Display Pins:");
+    ESP_LOGI(TAG, "  MOSI: GPIO%d", DISPLAY_MOSI_PIN);
+    ESP_LOGI(TAG, "  CLK: GPIO%d", DISPLAY_CLK_PIN);
+    ESP_LOGI(TAG, "  DC: GPIO%d", DISPLAY_DC_PIN);
+    ESP_LOGI(TAG, "  RST: GPIO%d", DISPLAY_RST_PIN);
+    ESP_LOGI(TAG, "  CS: GPIO%d", DISPLAY_CS_PIN);
+    ESP_LOGI(TAG, "  Backlight: GPIO%d", DISPLAY_BACKLIGHT_PIN);
+    
+    // Audio pins
+    ESP_LOGI(TAG, "Audio Pins:");
+#ifdef AUDIO_I2S_METHOD_SIMPLEX
+    ESP_LOGI(TAG, "  MIC SCK: GPIO%d", AUDIO_I2S_MIC_GPIO_SCK);
+    ESP_LOGI(TAG, "  MIC WS: GPIO%d", AUDIO_I2S_MIC_GPIO_WS);
+    ESP_LOGI(TAG, "  MIC DIN: GPIO%d", AUDIO_I2S_MIC_GPIO_DIN);
+    ESP_LOGI(TAG, "  SPK BCLK: GPIO%d", AUDIO_I2S_SPK_GPIO_BCLK);
+    ESP_LOGI(TAG, "  SPK LRCK: GPIO%d", AUDIO_I2S_SPK_GPIO_LRCK);
+    ESP_LOGI(TAG, "  SPK DOUT: GPIO%d", AUDIO_I2S_SPK_GPIO_DOUT);
+#else
+    ESP_LOGI(TAG, "  I2S BCLK: GPIO%d", AUDIO_I2S_GPIO_BCLK);
+    ESP_LOGI(TAG, "  I2S WS: GPIO%d", AUDIO_I2S_GPIO_WS);
+    ESP_LOGI(TAG, "  I2S DIN: GPIO%d", AUDIO_I2S_GPIO_DIN);
+    ESP_LOGI(TAG, "  I2S DOUT: GPIO%d", AUDIO_I2S_GPIO_DOUT);
+#endif
+    
+    // Control pins
+    ESP_LOGI(TAG, "Control Pins:");
+    ESP_LOGI(TAG, "  Boot Button: GPIO%d", BOOT_BUTTON_GPIO);
+    ESP_LOGI(TAG, "  Builtin LED: GPIO%d", BUILTIN_LED_GPIO);
+    
+    ESP_LOGI(TAG, "=== End of Pin Configuration ===");
+}
 
 DECLARE_BOARD(CompactWifiBoardS3Cam);
